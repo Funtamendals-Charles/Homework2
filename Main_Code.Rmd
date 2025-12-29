@@ -15,36 +15,39 @@ Installing to tead Excel files:
 
 ```{r}
 # opening a file from a url (file in Excel), name it 'fragility23'
-linkGit="https://github.com/DACSS-Fundamentals/overview/raw/refs/heads/main/FSI-2023-DOWNLOAD.xlsx"
+linkGit="https://github.com/Funtamendals-Charles/Homework2/raw/refs/heads/main/FSI-2023-DOWNLOAD.xlsx"
 
 # library(rio) # package needed
 fragility23=rio::import(file = linkGit) #object that will hold the result
 ```
 
 ```{r}
+#Show a summary of the data stored in fragility23
 str(fragility23)
 ```
 
 ## Apply square root function?
 
 ```{r}
-# whole DF?
+# Example of how applying the square root function to an entire dataframe causes an error
 sqrt(fragility23)
 ```
 
 ```{r}
 # several columns (only numerical)
-
-sqrt(fragility23[,4:5])
+#If we apply the sqrt function to specific columns of numeric data it applies to each value of each column
+sqrt(fragility23[,4:5]) #Sqrt all values within the Total and S1 columns
 ```
 
 ```{r}
 # one column
+#Sqrt on just one column, specifically the Total column.
 sqrt(fragility23$Total)
 ```
 
 ```{r}
 # one value
+#Sqrt on just one value, specifically the 1st value in the Total column.
 sqrt(fragility23$Total[1])
 ```
 
@@ -52,16 +55,19 @@ sqrt(fragility23$Total[1])
 
 ```{r}
 # sum everything
+#Adds every value found in all selected columns, specifically the Total and S1 column.
 sum(fragility23[,4:5])
 ```
 
 ```{r}
 # sum by column
+#Gets the sum of each column. From the selected portions of the data frame it finds the sum across each column (if the 2 were a 1 it would sum across each row)
 print(apply(fragility23[,4:5],2,sum))
 ```
 
 ```{r}
 #notice
+#Gets the type of the vector from the last cell. Since its not a list, its a vector containing elements of type double.
 typeof(apply(fragility23[,4:5],2,sum))
 ```
 
@@ -69,46 +75,55 @@ If you do not see **list**, then it is a vector. ⏫
 
 ```{r}
 # sum by row
+#Of the selected parts of data frame, it gets the sum across each row
 print(apply(fragility23[,4:5],1,sum))
 ```
 
 ### Apply by iterating:
 
 ```{r}
+#Iterativly applies the sum function to each element (which are vectors) of fragility23 
 print(lapply(fragility23[,4:5],sum))
 ```
 
 Notice output of **lapply**:
 
 ```{r}
+#return type of lapply is list. 
 typeof(lapply(fragility23[,4:5],sum))
 ```
 
 ```{r}
+#return class of lapply is list.
 class(lapply(fragility23[,4:5],sum))
 ```
 
 Notice output of **sapply**:
 
 ```{r}
+#Each element of the list is the sum across the selected columns of fragility23
 print(sapply(fragility23[,4:5],sum))
 ```
 
 ```{r}
+#Class of sapply is numeric
 class(sapply(fragility23[,4:5],sum))
 ```
 
 Similarly:
 
 ```{r}
+#Iterativly applies the sqrt to each value in the subportion of fragility23. 
 print(lapply(fragility23[,4:5],sqrt))
 ```
 
 ```{r}
+#Again, the type of the returned object is a list
 class(lapply(fragility23[,4:5],sqrt))
 ```
 
 ```{r}
+#Sapply on the other hand maintains the dimensions of the subportion of fragility 23 and then sqrts each value found.
 print(sapply(fragility23[,4:5],sqrt))
 ```
 
