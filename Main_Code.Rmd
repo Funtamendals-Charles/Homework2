@@ -30,7 +30,7 @@ str(fragility23)
 
 ```{r}
 # Example of how applying the square root function to an entire dataframe causes an error
-sqrt(fragility23)
+#sqrt(fragility23)
 ```
 
 ```{r}
@@ -113,7 +113,7 @@ class(sapply(fragility23[,4:5],sum))
 Similarly:
 
 ```{r}
-#Iterativly applies the sqrt to each value in the subportion of fragility23. 
+#Iterativly applies the sqrt to each value in the subportion of fragility23. It generates two separated chunks because it iterated over two different columns.
 print(lapply(fragility23[,4:5],sqrt))
 ```
 
@@ -128,35 +128,71 @@ print(sapply(fragility23[,4:5],sqrt))
 ```
 
 ```{r}
+#This time the returned class is a matrix (a special case of an array). This indicates that sapply's return type depends on the data that is input to it as opposed to lapply which always returns a list.
 class(sapply(fragility23[,4:5],sqrt))
 ```
 
 Now our own function:
 
 ```{r}
+#Function that marks whether or not each row is above/below average based on the metric in the second column.
+#It assumes input as a dataframe with the columns: Country and any numeric column.
 theOnesOK = function(DF_country_and_variable) {
+  #saves the numeric column in variable_values.
   variable_values <- DF_country_and_variable[,2]
+  #Calculates the mean value of the variable_values.
   avg_value <- mean(variable_values, na.rm = TRUE)
+  #Creates a boolean vector where values larger than the average get the tag "Above Average" and all else get "Below/At Average"
   is_above <- ifelse(variable_values > avg_value, "Above Average", "Below/At Average")
+  #Then it adds this vector to the original input as the Status column.
   DF_country_and_variable$Status <- is_above
   return(DF_country_and_variable)
 }
 ```
 
 ```{r}
+#Returns the fragility index with Country, S1 and Status columns. The status columns indicates if the country is above/below average in terms of its S1 metric.
 theOnesOK(fragility23[,c('Country','S1: Demographic Pressures')])
+```
+```{r}
+#Assumes the entire dataframe as input as well as the name of the numeric column with which to assess the data on. It also takes in optional input CountryColumn which is the name of the country column. It assumes it is called 'Country' but allows the user to specify if it is something else.
+theOnesOK2 = function(DF, DFvariable, CountryColumn='Country') {
+  #First it selected the numeric column based on its name (not its index like in the last function)
+  variable_values <- DF[,DFvariable]
+  #Then calculates the average (same as last function)
+  avg_value <- mean(variable_values, na.rm = TRUE)
+  #Creates the boolean vector indicates if each value is above average or not (same as before)
+  is_above <- ifelse(variable_values > avg_value, "Above Average", "Below/At Average")
+  #Then creates a new string which is called Status_on Numeric Column
+  newname = paste('Status_on', DFvariable)
+  #Then assigns the boolean vector to a new column with the key being newname
+  DF[,newname] <- is_above 
+  #Then the DF is returned with the Country column and newname column (which is our above/below average column)
+  return(DF[,c(CountryColumn, newname)])
+}
 ```
 
 ```{r}
+#The function take slightly different input from theOnesOk1 and only returns the Country and Status column where as theOnesOk1 returns Country, Status and the Numeric Metric column (where status was derived).
+theOnesOK2(fragility23, 'S1: Demographic Pressures')
+```
+
+```{r}
+#As input: Dataframe, Index of columns to use, Optionally: Name of country column
 mystery=function(DF,positionsToUse,CountryColumn='Country'){
+  #Creates a new DF which for now is just the country column
   newDF=DF[,c(CountryColumn),drop = FALSE]
+  #Create and store the string 'average'
   average='average'
+  #Create a new column in newDF called average. For each row, it calculates the average of the values found within positionsToUse. 
   newDF[,average]=apply(DF[,positionsToUse],1,mean,na.rm = TRUE)
+  #Finally newDF is returned with columns "Country" and "Average"
   return(newDF[,c(CountryColumn,average)])
 }
 ```
 
 ```{r}
+#Given the DF and the positions 4:6, it returns each country with the average across Total, S1 and S2
 mystery(fragility23,4:6)
 ```
 
